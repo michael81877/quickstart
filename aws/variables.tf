@@ -82,6 +82,21 @@ variable "corp_security_group_names" {
   type = set(string)
 }
 
+variable "keypair_name" {
+  type        = string
+  description = "keypair used to associate with the ec2 instances"
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "the vpc to deploy all resources into"
+}
+
+variable "subnet_id" {
+  type        = string
+  description = "the subnet to deploy resources under"
+}
+
 # Local variables used to reduce repetition
 locals {
   node_username = "ubuntu"
