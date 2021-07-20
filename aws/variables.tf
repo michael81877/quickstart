@@ -3,15 +3,25 @@
 // TODO - use null defaults
 
 # Required
-variable "aws_access_key" {
-  type        = string
-  description = "AWS access key used to create infrastructure"
-}
+# variable "aws_access_key" {
+#   type        = string
+#   description = "AWS access key used to create infrastructure"
+# }
 
-# Required
-variable "aws_secret_key" {
-  type        = string
-  description = "AWS secret key used to create AWS infrastructure"
+# # Required
+# variable "aws_secret_key" {
+#   type        = string
+#   description = "AWS secret key used to create AWS infrastructure"
+# }
+
+# # Required
+# variable "aws_session_token" {
+#   type        = string
+#   description = "AWS session token used to create AWS infrastructure"
+# }
+
+variable "aws_profile" {
+  type = string
 }
 
 variable "aws_region" {
@@ -68,6 +78,9 @@ variable "rancher_server_admin_password" {
   description = "Admin password to use for Rancher server bootstrap"
 }
 
+variable "corp_security_group_names" {
+  type = set(string)
+}
 
 # Local variables used to reduce repetition
 locals {

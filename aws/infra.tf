@@ -23,27 +23,33 @@ resource "aws_key_pair" "quickstart_key_pair" {
 }
 
 # Security group to allow all traffic
-resource "aws_security_group" "rancher_sg_allowall" {
-  name        = "${var.prefix}-rancher-allowall"
-  description = "Rancher quickstart - allow all traffic"
+# resource "aws_security_group" "rancher_sg_allowall" {
+#   name        = "${var.prefix}-rancher-allowall"
+#   description = "Rancher quickstart - allow all traffic"
 
-  ingress {
-    from_port   = "0"
-    to_port     = "0"
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   ingress {
+#     from_port   = "0"
+#     to_port     = "0"
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  egress {
-    from_port   = "0"
-    to_port     = "0"
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   egress {
+#     from_port   = "0"
+#     to_port     = "0"
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  tags = {
-    Creator = "rancher-quickstart"
-  }
+#   tags = {
+#     Creator = "rancher-quickstart"
+#   }
+# }
+
+data "aws_security_group" "corp_sgs" {
+  for_each = var.corp_security_group_names
+
+  name = each.key
 }
 
 # AWS EC2 instance for creating a single node RKE cluster and installing the Rancher server
@@ -52,7 +58,10 @@ resource "aws_instance" "rancher_server" {
   instance_type = var.instance_type
 
   key_name        = aws_key_pair.quickstart_key_pair.key_name
-  security_groups = [aws_security_group.rancher_sg_allowall.name]
+  #security_groups = [aws_security_group.rancher_sg_allowall.name]
+  vpc_security_group_ids =  [ for sg in data.aws_security_group.corp_sgs : sg.id ]
+  # security_groups =  [ for sg in data.aws_security_group.corp_sgs : sg.id ]
+  subnet_id = "subnet-000cefa12f5384479"
 
   user_data = templatefile(
     join("/", [path.module, "../cloud-common/files/userdata_rancher_server.template"]),
@@ -114,7 +123,10 @@ resource "aws_instance" "quickstart_node" {
   instance_type = var.instance_type
 
   key_name        = aws_key_pair.quickstart_key_pair.key_name
-  security_groups = [aws_security_group.rancher_sg_allowall.name]
+  # security_groups = [aws_security_group.rancher_sg_allowall.name]
+  vpc_security_group_ids = [ for sg in data.aws_security_group.corp_sgs : sg.id ]
+  # security_groups =  [ for sg in data.aws_security_group.corp_sgs : sg.id ]
+  subnet_id = "subnet-000cefa12f5384479"
 
   user_data = templatefile(
     join("/", [path.module, "files/userdata_quickstart_node.template"]),
